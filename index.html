@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSD → EUR Convertisseur</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .widget {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 36px 40px 32px;
+      width: 360px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .flags {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .arrow-icon {
+      color: rgba(255,255,255,0.4);
+      font-size: 14px;
+    }
+
+    .title {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      color: rgba(255,255,255,0.92);
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 1px;
+    }
+
+    /* Rate badge */
+    .rate-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+
+    .rate-label { color: rgba(255,255,255,0.5); }
+
+    .rate-value {
+      font-weight: 700;
+      font-size: 14px;
+      color: #7dd3fc;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .rate-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulse 2s infinite;
+    }
+
+    .dot.loading { background: #facc15; animation: none; }
+    .dot.error   { background: #f87171; animation: none; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* Fields */
+    .field { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .currency-tag {
+      position: absolute;
+      left: 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 14px 16px 14px 52px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      font-variant-numeric: tabular-nums;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    input[type="number"]:focus {
+      border-color: rgba(125, 211, 252, 0.5);
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.12);
+    }
+
+    input[type="number"]::placeholder { color: rgba(255,255,255,0.2); }
+
+    /* Result */
+    .result-field .input-wrap input {
+      color: #7dd3fc;
+      cursor: default;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 4px 0 4px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .divider-icon {
+      font-size: 16px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* Quick picks */
+    .quick-picks {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .quick-picks button {
+      flex: 1;
+      min-width: 60px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 4px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+    }
+
+    .quick-picks button:hover {
+      background: rgba(125, 211, 252, 0.15);
+      border-color: rgba(125, 211, 252, 0.35);
+      color: #7dd3fc;
+      transform: translateY(-1px);
+    }
+
+    .quick-picks button:active { transform: translateY(0); }
+
+    /* Footer */
+    .footer {
+      margin-top: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .source {
+      font-size: 11px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    .refresh-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.35);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+      line-height: 1;
+    }
+
+    .refresh-btn:hover {
+      color: #7dd3fc;
+      background: rgba(125, 211, 252, 0.1);
+    }
+
+    .refresh-btn.spinning { animation: spin 0.8s linear infinite; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="widget">
+    <!-- Header -->
+    <div class="header">
+      <div class="flags">
+        <span>🇷🇸</span>
+        <span class="arrow-icon">›</span>
+        <span>🇪🇺</span>
+      </div>
+      <div>
+        <div class="title">Convertisseur RSD / EUR</div>
+        <div class="subtitle">Dinar serbe → Euro</div>
+      </div>
+    </div>
+
+    <!-- Rate badge -->
+    <div class="rate-badge">
+      <span class="rate-label">Taux actuel</span>
+      <span class="rate-value" id="rate-display">—</span>
+      <span class="rate-status">
+        <span class="dot loading" id="dot"></span>
+        <span id="rate-status-text">chargement…</span>
+      </span>
+    </div>
+
+    <!-- Input RSD -->
+    <div class="field">
+      <label>Montant en dinars</label>
+      <div class="input-wrap">
+        <span class="currency-tag">RSD</span>
+        <input type="number" id="rsd-input" placeholder="0" min="0" step="any" />
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-icon">⇅</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- Output EUR -->
+    <div class="field result-field">
+      <label>Équivalent en euros</label>
+      <div class="input-wrap">
+        <span class="currency-tag">EUR</span>
+        <input type="number" id="eur-output" placeholder="0.00" readonly tabindex="-1" />
+      </div>
+    </div>
+
+    <!-- Quick picks -->
+    <div class="quick-picks">
+      <button onclick="setRsd(1000)">1 000</button>
+      <button onclick="setRsd(5000)">5 000</button>
+      <button onclick="setRsd(10000)">10 000</button>
+      <button onclick="setRsd(50000)">50 000</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span class="source" id="footer-source">Taux mis à jour automatiquement</span>
+      <button class="refresh-btn" id="refresh-btn" title="Actualiser le taux" onclick="fetchRate()">↻</button>
+    </div>
+  </div>
+
+  <script>
+    let rate = null;
+
+    const rsdInput  = document.getElementById('rsd-input');
+    const eurOutput = document.getElementById('eur-output');
+    const rateDisplay = document.getElementById('rate-display');
+    const dot = document.getElementById('dot');
+    const statusText = document.getElementById('rate-status-text');
+    const footerSource = document.getElementById('footer-source');
+    const refreshBtn = document.getElementById('refresh-btn');
+
+    function setStatus(state, text) {
+      dot.className = 'dot' + (state !== 'ok' ? ' ' + state : '');
+      statusText.textContent = text;
+    }
+
+    function convert() {
+      if (!rate) return;
+      const val = parseFloat(rsdInput.value);
+      eurOutput.value = isNaN(val) || val === 0 ? '' : (val * rate).toFixed(2);
+    }
+
+    function setRsd(amount) {
+      rsdInput.value = amount;
+      convert();
+    }
+
+    async function fetchRate() {
+      refreshBtn.classList.add('spinning');
+      setStatus('loading', 'chargement…');
+      rateDisplay.textContent = '—';
+
+      try {
+        // Frankfurter API — gratuite, sans clé, données BCE
+        const res = await fetch('https://api.frankfurter.app/latest?from=RSD&to=EUR');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        rate = data.rates.EUR;
+
+        rateDisplay.textContent = '1 RSD = ' + rate.toFixed(6) + ' €';
+        setStatus('ok', 'en direct');
+
+        const d = new Date(data.date);
+        footerSource.textContent = 'BCE · ' + d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+
+        convert();
+      } catch (e) {
+        setStatus('error', 'hors ligne');
+        footerSource.textContent = 'Impossible de charger le taux';
+
+        // Taux de secours si l'API est inaccessible (~117.5 RSD = 1 EUR)
+        if (!rate) {
+          rate = 1 / 117.5;
+          rateDisplay.textContent = '≈ ' + rate.toFixed(6) + ' € (estimé)';
+          footerSource.textContent = 'Taux indicatif — vérifiez la connexion';
+        }
+      } finally {
+        refreshBtn.classList.remove('spinning');
+      }
+    }
+
+    rsdInput.addEventListener('input', convert);
+
+    // Lancement
+    fetchRate();
+  </script>
+</body>
+</html>
