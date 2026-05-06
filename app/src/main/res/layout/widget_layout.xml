@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🇷🇸  ›  🇪🇺"
+        android:textSize="14sp"
+        android:textColor="#FFFFFFFF" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <TextView
+        android:id="@+id/tv_rsd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1 000 RSD"
+        android:textSize="12sp"
+        android:textColor="#99FFFFFF" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp" />
+
+    <TextView
+        android:id="@+id/tv_eur"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="—"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="#7DD3FC"
+        android:maxLines="1" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <TextView
+        android:id="@+id/tv_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="9sp"
+        android:textColor="#66FFFFFF" />
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="9sp"
+        android:textColor="#44FFFFFF" />
+
+</LinearLayout>
