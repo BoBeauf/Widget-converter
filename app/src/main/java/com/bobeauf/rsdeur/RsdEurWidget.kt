@@ -56,6 +56,7 @@ class RsdEurWidget : AppWidgetProvider() {
     ) {
         val views = RemoteViews(context.packageName, R.layout.widget_layout)
 
+        views.setTextViewText(R.id.tv_flags, "🇷🇸  ›  🇪🇺")
         views.setTextViewText(R.id.tv_rsd, "1 000 RSD")
         views.setTextViewText(R.id.tv_eur, String.format(Locale.US, "%.2f €", 1_000 * rate))
         views.setTextViewText(R.id.tv_rate, String.format(Locale.US, "1 RSD = %.5f €", rate))
